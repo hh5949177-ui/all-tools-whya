@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nokia Chat Canvas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f3f4f6;
+    color: #111;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+  .app {
+    width: 100%;
+    max-width: 480px;
+    background: #f3f4f6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* App Title */
+  .title-sec {
+    padding: 32px 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .app-icon {
+    width: 48px; height: 48px;
+    background: #fff;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+  }
+  .app-icon svg { width: 24px; height: 24px; stroke: #111; stroke-width: 2; fill: none; }
+  .app-title h1 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 2px;
+  }
+  .app-title p {
+    font-size: 13px;
+    color: #666;
+  }
+
+  /* Headline */
+  .headline {
+    padding: 0 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .headline .dash {
+    width: 24px; height: 3px;
+    background: #111;
+    border-radius: 2px;
+  }
+  .headline h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  /* Input Section */
+  .input-sec {
+    padding: 0 20px 24px;
+  }
+  .input-sec > p {
+    font-size: 13.5px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  /* Form Box */
+  .form-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .input-group {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .input-group:focus-within {
+    border-color: #d1d5db;
+  }
+  .input-group svg {
+    width: 16px; height: 16px;
+    stroke: #9ca3af;
+    stroke-width: 2.2;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  .input-group input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: #111;
+    outline: none;
+    font-family: inherit;
+    width: 100%;
+  }
+  .input-group input::placeholder { color: #9ca3af; }
+
+  .row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn-render {
+    width: 100%;
+    padding: 14px;
+    background: #111;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 4px;
+  }
+  .btn-render:active:not(:disabled) { transform: scale(0.98); }
+  .btn-render:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .status-msg {
+    margin-top: 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #ef4444;
+    display: none;
+  }
+  .status-msg.show { display: block; }
+
+  /* Preview Box */
+  .preview-box {
+    margin: 0 20px 24px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .preview-box.show { display: flex; }
+  .preview-box img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+  }
+  .btn-download {
+    width: 100%;
+    padding: 12px;
+    background: #f3f4f6;
+    color: #111;
+    font-size: 13.5px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+  }
+  .btn-download:hover { background: #e5e7eb; }
+
+  /* Step Card */
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    margin: 0 20px 24px;
+  }
+  .card h3 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #111;
+    margin-bottom: 18px;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    flex-shrink: 0;
+  }
+  .step p {
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.45;
+    margin-top: 3px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: auto;
+    padding: 32px 20px 40px;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+  }
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .footer-icon {
+    width: 32px; height: 32px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .footer-icon svg { width: 18px; height: 18px; stroke: #111; stroke-width: 2; fill: none; }
+  .footer h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+  }
+  .footer p {
+    font-size: 12.5px;
+    color: #6b7280;
+    line-height: 1.6;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .footer small {
+    display: block;
+    margin-top: 16px;
+    font-size: 11px;
+    color: #9ca3af;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  
+  <!-- App Title -->
+  <div class="title-sec">
+    <div class="app-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+    </div>
+    <div class="app-title">
+      <h1>Nokia Canvas</h1>
+      <p>Render chat jadul</p>
+    </div>
+  </div>
+
+  <!-- Headline -->
+  <div class="headline">
+    <div class="dash"></div>
+    <h2>Isi Data</h2>
+  </div>
+
+  <!-- Input Section -->
+  <div class="input-sec">
+    <p>Lengkapi data untuk merender pesan gaya Nokia.</p>
+    
+    <div class="form-box">
+      
+      <div class="input-group">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <input id="textInput" type="text" placeholder="Teks Pesan" value="kata-kata hari ini">
+      </div>
+
+      <div class="input-group">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <input id="fromInput" type="text" placeholder="Pengirim (From)" value="whya dev">
+      </div>
+
+      <div class="input-group">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+        <input id="titleInput" type="text" placeholder="Judul" value="whya">
+      </div>
+
+      <div class="row-grid">
+        <div class="input-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <input id="dateInput" type="text" placeholder="DD/MM/YYYY" value="08/06/2026">
+        </div>
+        <div class="input-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <input id="timeInput" type="text" placeholder="JJ:MM" value="12:00">
+        </div>
+      </div>
+
+      <button class="btn-render" id="btnRender">Render Image</button>
+    </div>
+    
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <!-- Preview Box -->
+  <div class="preview-box" id="previewBox">
+    <img id="resultImg" src="" alt="Hasil Nokia">
+    <a class="btn-download" id="btnDownload" download="nokia.png">Download PNG</a>
+  </div>
+
+  <!-- Step Card -->
+  <div class="card">
+    <h3>Step by step</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <p>Lengkapi semua kolom isian</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p>Tekan tombol Render Image</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p>Preview gambar akan muncul</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <p>Download hasil sebagai file PNG</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-brand">
+      <div class="footer-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+      </div>
+      <h4>Nokia Canvas</h4>
+    </div>
+    <p>Render pesan kustom dengan tampilan layar ponsel jadul.</p>
+    <small>Not affiliated with any third-party service.</small>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const $text = document.getElementById("textInput");
+  const $from = document.getElementById("fromInput");
+  const $title = document.getElementById("titleInput");
+  const $date = document.getElementById("dateInput");
+  const $time = document.getElementById("timeInput");
+  
+  const $btn = document.getElementById("btnRender");
+  const $btnDl = document.getElementById("btnDownload");
+  const $status = document.getElementById("statusMsg");
+  const $preview = document.getElementById("previewBox");
+  const $img = document.getElementById("resultImg");
+
+  let currentUrl = null;
+
+  function showStatus(msg) {
+    $status.textContent = msg;
+    $status.classList.add("show");
+    setTimeout(() => $status.classList.remove("show"), 5000);
+  }
+
+  async function render() {
+    const text = $text.value.trim();
+    const from = $from.value.trim();
+    const title = $title.value.trim();
+    const date = $date.value.trim();
+    const time = $time.value.trim();
+
+    if (!text || !from || !title || !date || !time) {
+      showStatus("Semua kolom wajib diisi.");
+      return;
+    }
+
+    if (currentUrl) {
+      URL.revokeObjectURL(currentUrl);
+      currentUrl = null;
+    }
+    
+    $preview.classList.remove("show");
+    $btn.disabled = true;
+    $btn.textContent = "Memproses...";
+
+    try {
+      // Endpoint Nokia
+      const targetApi = `https://apii.nexadev.my.id/nokia?text=${encodeURIComponent(text)}&from=${encodeURIComponent(from)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}&title=${encodeURIComponent(title)}`;
+      
+      // Proxy via Worker
+      const proxyUrl = "https://imghd.hh5949177.workers.dev/?url=" + encodeURIComponent(targetApi);
+      
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      
+      // Ambil ArrayBuffer (sesuai Node.js)
+      const arrayBuffer = await res.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: "image/png" });
+      
+      currentUrl = URL.createObjectURL(blob);
+      $img.src = currentUrl;
+      $btnDl.href = currentUrl;
+      $btnDl.download = "nokia_" + text.replace(/[^\w]/g, '').slice(0, 15) + ".png";
+      
+      $preview.classList.add("show");
+      
+    } catch (err) {
+      showStatus("Gagal: " + err.message);
+    } finally {
+      $btn.disabled = false;
+      $btn.textContent = "Render Image";
+    }
+  }
+
+  $btn.addEventListener("click", render);
+})();
+</script>
+</body>
+</html>

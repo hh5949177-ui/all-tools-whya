@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FF Stalker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f3f4f6;
+    color: #111;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+  .app {
+    width: 100%;
+    max-width: 480px;
+    background: #f3f4f6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* App Title */
+  .title-sec {
+    padding: 32px 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .app-icon {
+    width: 48px; height: 48px;
+    background: #fff;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+  }
+  .app-icon svg { width: 24px; height: 24px; stroke: #111; stroke-width: 2; fill: none; }
+  .app-title h1 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 2px;
+  }
+  .app-title p {
+    font-size: 13px;
+    color: #666;
+  }
+
+  /* Headline */
+  .headline {
+    padding: 0 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .headline .dash {
+    width: 24px; height: 3px;
+    background: #111;
+    border-radius: 2px;
+  }
+  .headline h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  /* Input Section */
+  .input-sec {
+    padding: 0 20px 24px;
+  }
+  .input-sec > p {
+    font-size: 13.5px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  /* Form Box */
+  .form-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .input-group {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .input-group:focus-within {
+    border-color: #d1d5db;
+  }
+  .input-group svg {
+    width: 16px; height: 16px;
+    stroke: #9ca3af;
+    stroke-width: 2.2;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  .input-group input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: #111;
+    outline: none;
+    font-family: inherit;
+    width: 100%;
+  }
+  .input-group input::placeholder { color: #9ca3af; }
+
+  .btn-render {
+    width: 100%;
+    padding: 14px;
+    background: #111;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 4px;
+  }
+  .btn-render:active:not(:disabled) { transform: scale(0.98); }
+  .btn-render:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .status-msg {
+    margin-top: 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #ef4444;
+    display: none;
+  }
+  .status-msg.show { display: block; }
+
+  /* Result Box */
+  .result-box {
+    margin: 0 20px 24px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .result-box.show { display: flex; }
+
+  /* Section Title */
+  .section-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 6px;
+  }
+
+  /* Profile Header */
+  .prof-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .prof-avatar {
+    width: 64px; height: 64px;
+    border-radius: 12px;
+    background: #e5e7eb;
+    object-fit: cover;
+    border: 2px solid #f3f4f6;
+  }
+  .prof-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .prof-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .prof-uid {
+    font-size: 12px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Detail List */
+  .detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    font-size: 12.5px;
+  }
+  .detail-label {
+    color: #6b7280;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+  .detail-value {
+    color: #111;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+  }
+
+  /* Rank Section */
+  .rank-section {
+    display: flex;
+    gap: 12px;
+  }
+  .rank-card {
+    flex: 1;
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rank-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: none; 
+  }
+  .rank-img[src]:not([src=""]) {
+    display: block;
+  }
+  .rank-details {
+    display: flex;
+    flex-direction: column;
+  }
+  .rank-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+  }
+  .rank-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+  }
+  .rank-points {
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  /* Assets Grid */
+  .assets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+  }
+  .asset-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    padding: 4px;
+  }
+
+  /* Step Card */
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    margin: 0 20px 24px;
+  }
+  .card h3 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #111;
+    margin-bottom: 18px;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    flex-shrink: 0;
+  }
+  .step p {
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.45;
+    margin-top: 3px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: auto;
+    padding: 32px 20px 40px;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+  }
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .footer-icon {
+    width: 32px; height: 32px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .footer-icon svg { width: 18px; height: 18px; stroke: #111; stroke-width: 2; fill: none; }
+  .footer h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+  }
+  .footer p {
+    font-size: 12.5px;
+    color: #6b7280;
+    line-height: 1.6;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .footer small {
+    display: block;
+    margin-top: 16px;
+    font-size: 11px;
+    color: #9ca3af;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  
+  <!-- App Title -->
+  <div class="title-sec">
+    <div class="app-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+    </div>
+    <div class="app-title">
+      <h1>FF Stalker</h1>
+      <p>Cek profil Free Fire lengkap</p>
+    </div>
+  </div>
+
+  <!-- Headline -->
+  <div class="headline">
+    <div class="dash"></div>
+    <h2>Cek UID</h2>
+  </div>
+
+  <!-- Input Section -->
+  <div class="input-sec">
+    <p>Masukkan UID Free Fire untuk melihat profil.</p>
+    
+    <div class="form-box">
+      <div class="input-group">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <input id="uidInput" type="text" placeholder="UID Free Fire" value="2354391335">
+      </div>
+      <button class="btn-render" id="btnRender">Cek Profil</button>
+    </div>
+    
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <!-- Result Box -->
+  <div class="result-box" id="resultBox">
+    
+    <!-- PROFILE HEADER -->
+    <div>
+      <div class="prof-header">
+        <img class="prof-avatar" id="profAvatar" src="" alt="Avatar" referrerpolicy="no-referrer">
+        <div class="prof-info">
+          <div class="prof-name" id="profName">Nickname</div>
+          <div class="prof-uid">
+            UID: <span id="profUid">-</span> • Lv. <span id="profLevel">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT INFO -->
+    <div>
+      <div class="section-title">Informasi Akun</div>
+      <div class="detail-list">
+        <div class="detail-item"><span class="detail-label">Likes</span> <span class="detail-value" id="profLikes">-</span></div>
+        <div class="detail-item"><span class="detail-label">Signature</span> <span class="detail-value" id="profSignature">-</span></div>
+        <div class="detail-item"><span class="detail-label">Clan</span> <span class="detail-value" id="profClan">-</span></div>
+        <div class="detail-item"><span class="detail-label">Server</span> <span class="detail-value" id="profServer">-</span></div>
+        <div class="detail-item"><span class="detail-label">Region</span> <span class="detail-value" id="profRegion">-</span></div>
+        <div class="detail-item"><span class="detail-label">Booyah Pass</span> <span class="detail-value" id="profBooyah">-</span></div>
+        <div class="detail-item"><span class="detail-label">Credit Score</span> <span class="detail-value" id="profCredit">-</span></div>
+      </div>
+    </div>
+
+    <!-- RANK INFO -->
+    <div>
+      <div class="section-title">Rank</div>
+      <div class="rank-section">
+        <div class="rank-card">
+          <img class="rank-img" id="brRankImg" src="" alt="BR">
+          <div class="rank-details">
+            <span class="rank-title">BR Rank</span>
+            <span class="rank-value" id="brRankTier">-</span>
+            <span class="rank-points" id="brRankPts">-</span>
+          </div>
+        </div>
+        <div class="rank-card">
+          <img class="rank-img" id="csRankImg" src="" alt="CS">
+          <div class="rank-details">
+            <span class="rank-title">CS Rank</span>
+            <span class="rank-value" id="csRankTier">-</span>
+            <span class="rank-points" id="csRankPts">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATES -->
+    <div>
+      <div class="section-title">Tanggal Akun</div>
+      <div class="detail-list">
+        <div class="detail-item"><span class="detail-label">Dibuat</span> <span class="detail-value" id="dateCreated">-</span></div>
+        <div class="detail-item"><span class="detail-label">Last Login</span> <span class="detail-value" id="dateLogin">-</span></div>
+        <div class="detail-item"><span class="detail-label">Umur Akun</span> <span class="detail-value" id="dateAge">-</span></div>
+      </div>
+    </div>
+
+    <!-- ESTIMATE -->
+    <div>
+      <div class="section-title">Estimasi Topup</div>
+      <div class="detail-list">
+        <div class="detail-item"><span class="detail-label">Rupiah</span> <span class="detail-value" id="estIdr">-</span></div>
+        <div class="detail-item"><span class="detail-label">Diamonds</span> <span class="detail-value" id="estDiamond">-</span></div>
+        <div class="detail-item"><span class="detail-label">USD</span> <span class="detail-value" id="estUsd">-</span></div>
+      </div>
+    </div>
+
+    <!-- ASSETS (GAMBAR) -->
+    <div>
+      <div class="section-title">Assets & Avatar</div>
+      <div class="assets-grid" id="assetsGrid">
+        <!-- Diisi via JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Step Card -->
+  <div class="card">
+    <h3>Step by step</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <p>Masukkan UID Free Fire yang valid</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p>Tekan tombol Cek Profil</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p>Data profil lengkap akan muncul</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-brand">
+      <div class="footer-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+      </div>
+      <h4>FF Stalker</h4>
+    </div>
+    <p>Cek informasi akun Free Fire berdasarkan UID.</p>
+    <small>Not affiliated with any third-party service.</small>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const $uidInput = document.getElementById("uidInput");
+  const $btn = document.getElementById("btnRender");
+  const $status = document.getElementById("statusMsg");
+  const $result = document.getElementById("resultBox");
+
+  const $profAvatar = document.getElementById("profAvatar");
+  const $profName = document.getElementById("profName");
+  const $profUid = document.getElementById("profUid");
+  const $profLevel = document.getElementById("profLevel");
+  const $profLikes = document.getElementById("profLikes");
+  const $profSignature = document.getElementById("profSignature");
+  const $profClan = document.getElementById("profClan");
+  const $profServer = document.getElementById("profServer");
+  const $profRegion = document.getElementById("profRegion");
+  const $profBooyah = document.getElementById("profBooyah");
+  const $profCredit = document.getElementById("profCredit");
+  
+  const $brRankImg = document.getElementById("brRankImg");
+  const $brRankTier = document.getElementById("brRankTier");
+  const $brRankPts = document.getElementById("brRankPts");
+  const $csRankImg = document.getElementById("csRankImg");
+  const $csRankTier = document.getElementById("csRankTier");
+  const $csRankPts = document.getElementById("csRankPts");
+
+  const $dateCreated = document.getElementById("dateCreated");
+  const $dateLogin = document.getElementById("dateLogin");
+  const $dateAge = document.getElementById("dateAge");
+
+  const $estIdr = document.getElementById("estIdr");
+  const $estDiamond = document.getElementById("estDiamond");
+  const $estUsd = document.getElementById("estUsd");
+
+  const $assetsGrid = document.getElementById("assetsGrid");
+
+  function showStatus(msg) {
+    $status.textContent = msg;
+    $status.classList.add("show");
+    setTimeout(() => $status.classList.remove("show"), 5000);
+  }
+
+  function getImgUrl(src) {
+    if (!src) return "";
+    if (src.startsWith("http")) return src;
+    return "https://adenpedia.my.id/update01/images/avatar/" + src;
+  }
+
+  function handleImgError(e) {
+    e.target.style.display = 'none';
+  }
+
+  function setSafeText(el, text) {
+    el.textContent = text !== null && text !== undefined && text !== "" ? text : "-";
+  }
+
+  async function render() {
+    const uid = $uidInput.value.trim();
+    if (!uid) {
+      showStatus("UID wajib diisi.");
+      return;
+    }
+
+    $result.classList.remove("show");
+    $assetsGrid.innerHTML = "";
+    $btn.disabled = true;
+    $btn.textContent = "Mencari...";
+
+    try {
+      const targetApi = "https://api.nexadev.my.id/api/ff?id=" + encodeURIComponent(uid);
+      const proxyUrl = "https://imghd.hh5949177.workers.dev/?url=" + encodeURIComponent(targetApi);
+      
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      
+      const data = await res.json();
+      console.log("FF Data:", data);
+
+      if (!data.ok || !data.profile) throw new Error(data.message || "Akun tidak ditemukan.");
+      const p = data.profile;
+
+      // 1. Header
+      $profAvatar.src = p.avatar?.url || p.assets?.avatar?.url || "";
+      $profAvatar.onerror = handleImgError;
+      setSafeText($profName, p.nickname);
+      setSafeText($profUid, p.uid);
+      setSafeText($profLevel, p.level);
+
+      // 2. Info Akun
+      setSafeText($profLikes, p.likesText || p.likes);
+      setSafeText($profSignature, p.signature);
+      setSafeText($profClan, p.clan ? `${p.clan.name} (Lv.${p.clan.level})` : null);
+      setSafeText($profServer, p.server);
+      setSafeText($profRegion, p.region);
+      setSafeText($profBooyah, p.booyahPass ? p.booyahPass.text : null);
+      setSafeText($profCredit, p.creditScore ? p.creditScore.value : null);
+
+      // 3. Rank
+      if (p.ranks?.br) {
+        $brRankImg.src = getImgUrl(p.ranks.br.imageUrl || p.ranks.br.image);
+        $brRankImg.onerror = handleImgError;
+        setSafeText($brRankTier, p.ranks.br.tier);
+        setSafeText($brRankPts, (p.ranks.br.pointsText || p.ranks.br.points) + " pts");
+      }
+      if (p.ranks?.cs) {
+        $csRankImg.src = getImgUrl(p.ranks.cs.imageUrl || p.ranks.cs.image);
+        $csRankImg.onerror = handleImgError;
+        setSafeText($csRankTier, p.ranks.cs.tier);
+        setSafeText($csRankPts, p.ranks.cs.star ? `⭐ ${p.ranks.cs.star} Bintang` : null);
+      }
+
+      // 4. Dates
+      setSafeText($dateCreated, p.dates?.createdAtText);
+      setSafeText($dateLogin, p.dates?.lastLoginAtText);
+      setSafeText($dateAge, p.dates?.accountAgeText);
+
+      // 5. Estimate
+      setSafeText($estIdr, p.estimate?.text);
+      setSafeText($estDiamond, p.estimate?.diamonds);
+      setSafeText($estUsd, p.estimate?.usd ? "$" + p.estimate.usd : null);
+
+      // 6. Assets Grid
+      const assetUrls = new Set();
+      if (p.assets) {
+        const processObj = (obj) => {
+          if (obj && obj.url) assetUrls.add(obj.url);
+        };
+        processObj(p.assets.avatar);
+        processObj(p.assets.profileAvatar);
+        processObj(p.assets.pin);
+        processObj(p.assets.banner);
+        processObj(p.assets.pet);
+        if (p.assets.clothes && Array.isArray(p.assets.clothes)) p.assets.clothes.forEach(processObj);
+        if (p.assets.weaponSkins && Array.isArray(p.assets.weaponSkins)) p.assets.weaponSkins.forEach(processObj);
+      }
+
+      Array.from(assetUrls).forEach(url => {
+        const img = document.createElement("img");
+        img.className = "asset-img";
+        img.src = url;
+        img.onerror = handleImgError;
+        img.loading = "lazy";
+        $assetsGrid.appendChild(img);
+      });
+
+      $result.classList.add("show");
+
+    } catch (err) {
+      showStatus("Gagal: " + err.message);
+    } finally {
+      $btn.disabled = false;
+      $btn.textContent = "Cek Profil";
+    }
+  }
+
+  $btn.addEventListener("click", render);
+  
+  // Auto load UID 2354391335 saat halaman dibuka
+  window.addEventListener("DOMContentLoaded", () => {
+    render();
+  });
+})();
+</script>
+</body>
+</html>
